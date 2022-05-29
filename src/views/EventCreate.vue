@@ -1,9 +1,14 @@
 <script>
 import { v4 as uuidv4 } from "uuid";
+import { useEventStore } from "../stores/EventStores";
+import { reactive } from "vue";
+import { useRouter } from "vue-router";
 export default {
-    data() {
-        return {
-            categories: [
+    setup() {
+        const eventStore = useEventStore();
+        const router = useRouter();
+        const categories = reactive({
+            list: [
                 "sustainability",
                 "nature",
                 "animal welfare",
@@ -12,40 +17,42 @@ export default {
                 "food",
                 "community",
             ],
-            event: {
-                id: "",
-                category: "",
-                title: "",
-                description: "",
-                location: "",
-                date: "",
-                time: "",
-                organizer: "",
-            },
-        };
-    },
-    methods: {
-        onSubmit() {
-            const event = {
-                ...this.event,
+        });
+        const event = reactive({
+            id: "",
+            category: "",
+            title: "",
+            description: "",
+            location: "",
+            date: "",
+            time: "",
+            organizer: "",
+        });
+        const onSubmit = () => {
+            const payload = {
+                ...event,
                 id: uuidv4(),
-                organizer: this.$store.state.user,
+                organizer: eventStore.user,
             };
-            this.$store
-                .dispatch("createEvent", event)
+            eventStore
+                .createEvent(payload)
                 .then(() => {
-                    this.$router.push({
-                        name: "EventDetails",
-                        params: { id: event.id },
-                    });
+                    router.push(`/event/${eventStore.event.id}`);
                 })
                 .catch((error) => {
-                    this.$router.push({
+                    router.push({
                         name: "ErrorDisplay",
                         params: { error: error },
                     });
                 });
-        },
+        };
+        return {
+            eventStore,
+            event,
+            categories,
+            onSubmit,
+            router,
+        };
     },
 };
 </script>
@@ -57,7 +64,7 @@ export default {
             <label>Select a category: </label>
             <select v-model="event.category">
                 <option
-                    v-for="option in categories"
+                    v-for="option in categories.list"
                     :value="option"
                     :key="option"
                     :selected="option === event.category"

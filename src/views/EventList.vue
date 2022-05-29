@@ -1,21 +1,24 @@
 <script>
+import { onMounted } from "vue-demi";
 import EventCard from "../components/EventCard.vue";
+import { useEventStore } from "../stores/EventStores";
 export default {
     components: {
         EventCard,
     },
-    created() {
-        this.$store.dispatch("fetchEvents").catch((error) => {
-            this.$router.push({
-                name: "ErrorDisplay",
-                params: { error: error },
+    setup() {
+        const eventStore = useEventStore();
+        onMounted(() => {
+            eventStore.fetchEvents().catch((error) => {
+                this.$router.push({
+                    name: "ErrorDisplay",
+                    params: { error: error },
+                });
             });
         });
-    },
-    computed: {
-        events() {
-            return this.$store.state.events;
-        },
+        return {
+            eventStore,
+        };
     },
 };
 </script>
@@ -23,7 +26,11 @@ export default {
 <template>
     <h1>Events for Good</h1>
     <div class="events">
-        <EventCard v-for="event in events" :key="event.id" :event="event" />
+        <EventCard
+            v-for="event in eventStore.events"
+            :key="event.id"
+            :event="event"
+        />
     </div>
 </template>
 

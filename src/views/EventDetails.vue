@@ -1,26 +1,27 @@
 <script>
+import { onMounted } from "vue-demi";
+import { useEventStore } from "../stores/EventStores";
 export default {
     props: ["id"],
-    created() {
-        this.$store.dispatch("fetchEvent", this.id).catch((error) => {
-            this.$router.push({
-                name: "ErrorDisplay",
-                params: { error: error },
-            });
+    setup(props) {
+        const eventStore = useEventStore();
+        onMounted(() => {
+            eventStore.fetchEvent(props.id);
         });
-    },
-    computed: {
-        event() {
-            return this.$store.state.event;
-        },
+        return {
+            eventStore,
+        };
     },
 };
 </script>
 
 <template>
-    <div v-if="event">
-        <h1>{{ event.title }}</h1>
-        <p>{{ event.time }} on {{ event.date }} @ {{ event.location }}</p>
-        <p>{{ event.description }}</p>
+    <div v-if="eventStore.event">
+        <h1>{{ eventStore.event.title }}</h1>
+        <p>
+            {{ eventStore.event.time }} on {{ eventStore.event.date }} @
+            {{ eventStore.event.location }}
+        </p>
+        <p>{{ eventStore.event.description }}</p>
     </div>
 </template>

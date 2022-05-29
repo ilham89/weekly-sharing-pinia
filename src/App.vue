@@ -7,10 +7,24 @@
             <router-link :to="{ name: 'EventCreate' }"
                 >Create Event</router-link
             >
+            <p>{{ eventStore.getFirstName }}</p>
         </div>
         <router-view />
     </div>
 </template>
+
+<script>
+import { useEventStore } from "./stores/EventStores";
+export default {
+    setup() {
+        const eventStore = useEventStore();
+
+        return {
+            eventStore,
+        };
+    },
+};
+</script>
 
 <style>
 #app {
